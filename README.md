@@ -9,7 +9,7 @@ Credit: offici5l for adb connection
 # flasher-Installation 
 
 ```
-https://github.com/sukuna567/flasher.git
+git clone https://github.com/sukuna567/flasher.git
 ```
 Give Permission With
 ```
@@ -21,3 +21,5 @@ chmod +x flasher.sh
 ```
 ./flasher.sh
 ```
+
+# All Functions Will Work Auto
