@@ -8,6 +8,9 @@ Credit: offici5l for adb connection
 
 # flasher-Installation 
 
+Install termux & Termux-api apk
+
+
 ```
 git clone https://github.com/sukuna567/flasher.git
 ```
