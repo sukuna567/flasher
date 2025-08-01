@@ -8,7 +8,7 @@ Credit: offici5l for adb connection
 
 # flasher-Installation 
 
-Install[termux](https://f-droid.org/repo/com.termux_118.apk)& Termux-api apk
+Install [termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](https://f-droid.org/repo/com.termux.api_51.apk) apk
 
 
 ```
