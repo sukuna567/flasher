@@ -1,3 +1,4 @@
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 # Termux-flasher
 It's a termux based script for flashing files Automatically. Auto partition layout detection and auto detects recovery partition n flashes recovery without giving error.
 
