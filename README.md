@@ -8,7 +8,7 @@ Credit: offici5l for adb connection
 
 # flasher-Installation 
 
-Install [termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](https://f-droid.org/repo/com.termux.api_51.apk) apk
+Install [Termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](https://f-droid.org/repo/com.termux.api_51.apk) apk
 
 
 ```
@@ -26,3 +26,4 @@ chmod +x flasher.sh
 ```
 
 # All Functions Will Work Auto
+No need to rush it will handle all alone.
