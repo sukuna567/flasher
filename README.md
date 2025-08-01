@@ -3,6 +3,8 @@ It's a termux based script for flashing files Automatically. Auto partition layo
 
 Credit: offici5l for adb connection
 
+$ install termux and termux api
+
 <img src="flasher.png" alt="Flasher Logo" width="520"/>
 
 # Installation 
