@@ -13,7 +13,10 @@ Install [Termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](htt
 
 
 ```
-git clone https://github.com/sukuna567/flasher.git && cd flasher
+git clone https://github.com/sukuna567/flasher.git
+```
+```
+cd flasher
 ```
 Give Permission With
 ```
