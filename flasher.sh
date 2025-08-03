@@ -154,6 +154,8 @@ else
 fi
 
     echo -e "${BLUE}✅ Flashing completed!${RESET}"
+    
+    echo -e "${GREEN}if you're using mediatek device then flash vbmeta after recovery flash (vbmeta from current rom). It's for device specific but mandatory that's not giving harm on your device...${RESET}"
 }
 
 FLASH_ROM() {
