@@ -375,8 +375,6 @@ echo -e "${RED}
                      ...............................
 SOMETHING...................................................................${RESET}"
 
-echo -e "${BLUE}FASTBOOT MODE${RESET}"; fastboot devices ;;
-
     echo -e "${YELLOW}\n=============== Android Flash Menu ===============${RESET}"
     echo -e "${GREEN}1) Flash Recovery\n2) ADB Sideload(Apk/zip)\n3) Flash Fastboot ROM\n4) Flash vbmeta\n5) Flash Boot\n6) Reboot to System\n7) Reboot to Recovery\n8) fastboot to fastbootd\n9) Reboot to Bootloader\n10) Check active slot\n11) Set slot A\n12) Set slot B\n13) Exit${RESET}"
     read -p "Choose an option [1-13]: " choice
