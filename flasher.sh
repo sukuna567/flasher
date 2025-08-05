@@ -208,7 +208,7 @@ FLASH_ROM() {
 
 FASTBOOT_ROM() {
     echo -e "${BLUE}🔍 Searching fastboot ROMs...${RESET}"
-    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*fastboot*.tgz" -o -iname "*fastboot*.tar.gz")
+    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*.tgz" -o -iname "*fastboot*.tar.gz")
 
     if [ ${#FASTBOOT_FILES[@]} -eq 0 ]; then
         echo -e "${RED}❌ No Fastboot ROM found${RESET}"
