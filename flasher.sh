@@ -13,8 +13,8 @@ echo -e "${BLUE}📦 Checking & installing dependencies...${RESET}"
 # Update Termux packages & Install fastboot (termux package)
 echo -e "${YELLOW}thanks for offici5l developers for fastboot adb.${RESET}"
 read -p "Do you want to install adb-fastboot connection driver? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-       curl -s https://raw.githubusercontent.com/offici5l/termux-adb-fastboot/main/install | bash
+    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
+    curl -s https://raw.githubusercontent.com/offici5l/termux-adb-fastboot/main/install | bash
     else
        echo -e "${YELLOW}Continuing without adb-fastboot driver${RESET}"
     fi
@@ -23,10 +23,13 @@ read -p "Do you want to install adb-fastboot connection driver? (y/n): " choice
 clear
 if command -v adb >/dev/null 2>&1; then
     echo -e "${GREEN}[✔] ADB installed successfully.${RESET}"
-    adb version
+    adb --version
+    fastboot --version
 else
-    echo -e "${RED}[✘] Failed to install ADB. Try again manually.${RESET}"
+    echo -e "${RED}[✘] Failed to install ADB and Fastboot. Try again manually.${RESET}"
 fi
+
+sleep 6
 
 echo -e "${BLUE}Updating packages....${RESET}"
 yes | pkg update && upgrade
@@ -52,11 +55,12 @@ echo -e "${YELLOW}[~] Checking connected device (fastboot mode)...${RESET}"
 sleep 6
 
 # Check device in fastboot mode
-echo -e "${BLUE}☑️ Device Detected Here If You Unable To See Device Serial Number or stuck with empty Then Check Your Device Otg Or Cable.${RESET}"
-echo -e "${YELLOW}Check Verification......${RESET}"
+echo -e "${YELLOW}Verification Checks......${RESET}"
+echo -e "${BLUE}FIRST CONNECT YOUR DEVICE IN FASTBOOT..${RESET}"
 read -p "Do you want to check fastboot serial number? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
-       echo -e "${YELLOW}fastboot serial.......${RESET}"
+    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
+       echo -e "${BLUE}☑️ Device Detected Here If You Unable To See Device Serial Number or stuck with empty Then Check Your Device Otg Or Cable.${RESET}"
+       echo -e "${YELLOW}fastboot serial number.......${RESET}"
        fastboot devices
     fi
 
@@ -86,11 +90,15 @@ for dir in "${SOURCE_DIRS[@]}"; do
       -iname "*recovery*" -o \
       -iname "*magisk*.apk" -o \
       -iname "*magisk*.img" -o \
-      -iname "*fastboot*" -o \
+      -iname "*fastboot*.tgz" -o \
+      -iname "*fastboot*.zip" -o \
+      -iname "*fastboot*.tar.gz" -o \
       -iname "*orangefox*" -o \
+      -iname "*pitchblack*" -o \
+      -iname "*shrp*" -o \
       -iname "*ofox*" -o \
       -iname "*twrp*" -o \
-      -iname "*boot*" \
+      -iname "*boot*.img" \
     \))
 
     # Move found files
@@ -117,7 +125,7 @@ clear
 
 FLASH_RECOVERY() {
     echo -e "${BLUE}🔍 Scanning for recovery images...${RESET}"
-    mapfile -t RECOVERY_FILES < <(find /sdcard/flasher -iname "*recovery*.img")
+    mapfile -t RECOVERY_FILES < <(find /sdcard/flasher -iname "*recovery*.img" -o -iname "*twrp*.img" -o -iname "*shrp*.img" -o -iname "*ofox*.img" -o -iname "*orangefox*.img" -o -iname "*pitchblack*.img")
 
     if [ ${#RECOVERY_FILES[@]} -eq 0 ]; then
         echo -e "${RED}❌ No recovery image found in /sdcard/flasher/${RESET}"
@@ -208,7 +216,7 @@ FLASH_ROM() {
 
 FASTBOOT_ROM() {
     echo -e "${BLUE}🔍 Searching fastboot ROMs...${RESET}"
-    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*.tgz" -o -iname "*fastboot*.tar.gz")
+    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*fastboot*.tgz" -o -iname "*fastboot*.tar.gz")
 
     if [ ${#FASTBOOT_FILES[@]} -eq 0 ]; then
         echo -e "${RED}❌ No Fastboot ROM found${RESET}"
@@ -255,8 +263,11 @@ FASTBOOT_ROM() {
     esac
 
     echo -e "${GREEN}✅ Extraction completed → $OUTPUT_DIR${RESET}"
+    echo -e "${YELLOW}🧭 Transfering Rom folder into termux directory.. It will take time wait until it moved..${RESET}"
+    mv /sdcard/flasher/ROM $HOME
+    echo -e "${GREEN}✅ Moving completed.${RESET}"
     echo -e "${BLUE}🔍 Searching Flash Scripts...${RESET}"
-    mapfile -t FLASH_SCRIPT < <(find /sdcard/flasher/ROM -iname "flash_all.sh" -o -iname "flash_all_lock.sh" -o -iname "flash_all_except_data_storage.sh")
+    mapfile -t FLASH_SCRIPT < <(find $HOME/ROM -iname "flash_all.sh" -o -iname "flash_all_lock.sh" -o -iname "flash_all_except_data_storage.sh")
 
     if [ ${#FLASH_SCRIPT[@]} -eq 0 ]; then
         echo -e "${RED}❌ No Flash Script found${RESET}"
@@ -279,12 +290,12 @@ FASTBOOT_ROM() {
     fi
 
     chmod +x "$FLASH_SH"
-    bash "$FLASH_SH"
+    sh "$FLASH_SH"
     echo -e "${BLUE}✅ Fastboot ROM flashing done.${RESET}"
     sleep 3
     echo -e "${YELLOW}Removing Extracted 📂 Folder.....${RESET}"
     echo -e "${BLUE}WAIT FOR MIN....${RESET}"
-    rm -rf /sdcard/flasher/ROM
+    rm -rf $HOME/ROM
 }
 
 VB_META() {
@@ -352,7 +363,7 @@ echo -e "${RED}
 ⠀⠀⠀⠀⠀⠀⢀⣤⡶⠁⣠⣴⣾⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  
 ⠀⠀⠀⠀⢀⣴⣿⣿⣴⣿⠿⠋⣁⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
 ⠀⠀⠀⣰⣿⣿⣿⣿⣿⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣄⡀⠀⠀⠀⠀⠀⠀⠀
-⠀⣠⣾⣿⡿⠟⠋⠉⠀⣀⣀⣀⣨⣭⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣤⣤⣤⣴⠂  ${RESET}"${GREEN}Name${RESET}""${BLUE} - Flasher™ : Auto Flashing${RESET}"${RED}
+⠀⣠⣾⣿⡿⠟⠋⠉⠀⣀⣀⣀⣨⣭⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣤⣤⣤⣴⠂  ${RESET}"${GREEN}Name${RESET}""${BLUE} - Flasher [ AUTO ]${RESET}"${RED}
 ⠈⠉⠁⠀⠀⣀⣴⣾⣿⣿⡿⠟⠛⠉⠉⠉⠉⠉⠛⠻⠿⠿⠿⠿⠿⠿⠟⠋⠁⠀
 ⠀⠀⠀⢀⣴⣿⣿⣿⡿⠁⠀⢀⣀⣤⣤⣤⣤⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ${RESET}"${GREEN}Device${RESET}""${BLUE} - $(getprop ro.product.model)${RESET}"${RED}
 ⠀⠀⠀⣾⣿⣿⣿⡿⠁⢀⣴⣿⠋⠉⠉⠉⠉⠛⣿⣿⣶⣤⣤⣤⣤⣶⠖⠀⠀⠀
@@ -362,18 +373,11 @@ echo -e "${RED}
 ⠀⠀⠀⠀⠙⢿⣿⣿⣷⣄⡀⠀⠀⠀⠀⣀⣴⣿⣿⣿⣋⣠⡤⠄⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠈⠙⠛⠛⠿⠿⠿⠿⠿⠿⠟⠛⠛⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀  ${RESET}"${YELLOW}WELCOME IN MY WORLD${RESET}"
 "${RED}ORIGINAL${RESET}""
-
-echo -e "${YELLOW}\n========================= Created By @sukuna567 ============================${RESET}"
-
 echo -e "${RED}
-............................................................................
-............................................................................
-                     ...............................
-                     ...............................
-                     ...............................
-                     [          ${RESET}"${GREEN} WELCOME ${RESET}"${RED}          ]
-                     ...............................
-SOMETHING...................................................................${RESET}"
+            ...............................
+            [          ${RESET}"${GREEN} WELCOME ${RESET}"${RED}          ]
+            ...............................
+SOMETHING...............................${RESET}"
 
     echo -e "${YELLOW}\n=============== Android Flash Menu ===============${RESET}"
     echo -e "${GREEN}1) Flash Recovery\n2) ADB Sideload(Apk/zip)\n3) Flash Fastboot ROM\n4) Flash vbmeta\n5) Flash Boot\n6) Reboot to System\n7) Reboot to Recovery\n8) fastboot to fastbootd\n9) Reboot to Bootloader\n10) Check active slot\n11) Set slot A\n12) Set slot B\n13) Exit${RESET}"
