@@ -91,6 +91,7 @@ for dir in "${SOURCE_DIRS[@]}"; do
       -iname "*magisk*.apk" -o \
       -iname "*magisk*.img" -o \
       -iname "*fastboot*.tgz" -o \
+      -iname "*global*.tgz" -o \
       -iname "*fastboot*.zip" -o \
       -iname "*fastboot*.tar.gz" -o \
       -iname "*orangefox*" -o \
@@ -216,7 +217,7 @@ FLASH_ROM() {
 
 FASTBOOT_ROM() {
     echo -e "${BLUE}🔍 Searching fastboot ROMs...${RESET}"
-    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*fastboot*.tgz" -o -iname "*fastboot*.tar.gz")
+    mapfile -t FASTBOOT_FILES < <(find /sdcard/flasher -iname "*fastboot*.zip" -o -iname "*global*.tgz" -o -iname "*global*.tar.gz" -o -iname "*fastboot*.tgz" -o -iname "*fastboot*.tar.gz")
 
     if [ ${#FASTBOOT_FILES[@]} -eq 0 ]; then
         echo -e "${RED}❌ No Fastboot ROM found${RESET}"
