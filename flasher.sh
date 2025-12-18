@@ -45,7 +45,7 @@ yes | pkg install git
 echo -e "${BLUE}setting api.....${RESET}"
 pkg install termux-api
 
-echo -e"${BLUE}Giving storage permission.......${RESET}"
+echo -e "${BLUE}Giving storage permission.......${RESET}"
 termux-setup-storage -y
 
 echo -e "${YELLOW}Done....${RESET}"
@@ -102,7 +102,6 @@ for dir in "${SOURCE_DIRS[@]}"; do
       -iname "*global*.tar.gz" -o \
       -iname "*global*" -o \
       -iname "*global_images*" -o \
-      -iname "*images*" -o \
       -iname "*orangefox*" -o \
       -iname "*pitchblack*" -o \
       -iname "*shrp*" -o \
@@ -273,6 +272,16 @@ FASTBOOT_ROM() {
     esac
 
     echo -e "${GREEN}✅ Extraction completed → $OUTPUT_DIR${RESET}"
+    echo -e "${RED}㊗️ Clearing Previous directory if available......${RESET}"
+    # Check if the $HOME/ROM directory exists
+    if [ -d "$HOME/ROM" ]; then
+       echo -e "${BLUE}Directory $HOME/ROM found. Removing it...${RESET}"
+       rm -rf "$HOME/ROM"
+       echo -e "${YELLOW}Directory removed...${RESET}"
+    else
+       echo -e "${BLUE}Directory $HOME/ROM not found. Continuing execution...${RESET}"
+    fi
+    
     echo -e "${YELLOW}🧭 Transfering Rom folder into termux directory.. It will take time wait until it moved..${RESET}"
     mv /sdcard/flasher/ROM $HOME
     echo -e "${GREEN}✅ Moving completed.${RESET}"
@@ -391,7 +400,7 @@ echo -e "${RED}
 SOMETHING...............................${RESET}"
 
     echo -e "${YELLOW}\n=============== Android Flash Menu ===============${RESET}"
-    echo -e "${GREEN}1) 🎲 Flash Recovery\n2) 🃏 ADB Sideload(Apk/zip)\n3) 🀄 Flash Fastboot ROM\n4) 🪅 Flash vbmeta\n5) 🪩 Flash Boot\n6) 🧸 Reboot to System\n7) ♦️ Reboot to Recovery\n8) 🧶 fastboot to fastbootd\n9) 🎭 Reboot to Bootloader\n10) 🎼 Check active slot\n11) 📲 Set slot A\n12) 📲 Set slot B\n13) ✂️ Exit${RESET}"
+    echo -e "${GREEN}1) 🎲 Flash Recovery\n2) 🃏 ADB Sideload(Apk/zip)\n3) 🀄 Flash Fastboot ROM\n4) 🪅 Flash vbmeta\n5) 🪩 Flash Boot\n6) 🔘 Reboot to System\n7) ♦️ Reboot to Recovery\n8) 🧶 fastboot to fastbootd\n9) 🔲 Reboot to Bootloader\n10) 🔶 Check active slot\n11) 📲 Set slot A\n12) 📲 Set slot B\n13) 💠 Exit${RESET}"
     read -p "Choose an option [1-13]: " choice
     case "$choice" in
         1) FLASH_RECOVERY ;;
