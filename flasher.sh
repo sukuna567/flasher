@@ -32,7 +32,12 @@ fi
 sleep 6
 
 echo -e "${BLUE}Updating packages....${RESET}"
-yes | pkg update && upgrade
+read -p "Do you want update termux driver? (y/n): " choice
+    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
+    yes | pkg update && upgrade
+    else
+       echo -e "${YELLOW}Continuing without updated termux driver${RESET}"
+    fi
 
 echo -e "${BLUE}git installation...${RESET}"
 yes | pkg install git
@@ -94,6 +99,10 @@ for dir in "${SOURCE_DIRS[@]}"; do
       -iname "*global*.tgz" -o \
       -iname "*fastboot*.zip" -o \
       -iname "*fastboot*.tar.gz" -o \
+      -iname "*global*.tar.gz" -o \
+      -iname "*global*" -o \
+      -iname "*global_images*" -o \
+      -iname "*images*" -o \
       -iname "*orangefox*" -o \
       -iname "*pitchblack*" -o \
       -iname "*shrp*" -o \
@@ -267,8 +276,9 @@ FASTBOOT_ROM() {
     echo -e "${YELLOW}🧭 Transfering Rom folder into termux directory.. It will take time wait until it moved..${RESET}"
     mv /sdcard/flasher/ROM $HOME
     echo -e "${GREEN}✅ Moving completed.${RESET}"
+    cd $HOME/ROM
     echo -e "${BLUE}🔍 Searching Flash Scripts...${RESET}"
-    mapfile -t FLASH_SCRIPT < <(find $HOME/ROM -iname "flash_all.sh" -o -iname "flash_all_lock.sh" -o -iname "flash_all_except_data_storage.sh")
+    mapfile -t FLASH_SCRIPT < <(find -iname "flash_all.sh" -o -iname "flash_all_lock.sh" -o -iname "flash_all_except_data_storage.sh")
 
     if [ ${#FLASH_SCRIPT[@]} -eq 0 ]; then
         echo -e "${RED}❌ No Flash Script found${RESET}"
@@ -291,7 +301,7 @@ FASTBOOT_ROM() {
     fi
 
     chmod +x "$FLASH_SH"
-    sh "$FLASH_SH"
+    ./"$FLASH_SH"
     echo -e "${BLUE}✅ Fastboot ROM flashing done.${RESET}"
     sleep 3
     echo -e "${YELLOW}Removing Extracted 📂 Folder.....${RESET}"
@@ -381,7 +391,7 @@ echo -e "${RED}
 SOMETHING...............................${RESET}"
 
     echo -e "${YELLOW}\n=============== Android Flash Menu ===============${RESET}"
-    echo -e "${GREEN}1) Flash Recovery\n2) ADB Sideload(Apk/zip)\n3) Flash Fastboot ROM\n4) Flash vbmeta\n5) Flash Boot\n6) Reboot to System\n7) Reboot to Recovery\n8) fastboot to fastbootd\n9) Reboot to Bootloader\n10) Check active slot\n11) Set slot A\n12) Set slot B\n13) Exit${RESET}"
+    echo -e "${GREEN}1) 🎲 Flash Recovery\n2) 🃏 ADB Sideload(Apk/zip)\n3) 🀄 Flash Fastboot ROM\n4) 🪅 Flash vbmeta\n5) 🪩 Flash Boot\n6) 🧸 Reboot to System\n7) ♦️ Reboot to Recovery\n8) 🧶 fastboot to fastbootd\n9) 🎭 Reboot to Bootloader\n10) 🎼 Check active slot\n11) 📲 Set slot A\n12) 📲 Set slot B\n13) ✂️ Exit${RESET}"
     read -p "Choose an option [1-13]: " choice
     case "$choice" in
         1) FLASH_RECOVERY ;;
