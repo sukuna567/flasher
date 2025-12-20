@@ -13,20 +13,13 @@ Install [Termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](htt
 
 
 ```
-git clone https://github.com/sukuna567/flasher.git
-```
-```
-cd flasher
-```
-Give Permission With
-```
-chmod +x flasher.sh
+curl -s https://raw.githubusercontent.com/sukuna567/flasher/main/flasher_installation.sh | bash
 ```
 
 # Run
 
 ```
-./flasher.sh
+flasher
 ```
 
 # All Functions Will Work Auto
