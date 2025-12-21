@@ -5,7 +5,8 @@ It's a termux based script for flashing files Automatically. Auto partition layo
 Credit: offici5l for adb connection
 
 
-<img src="script_interface1.png,script_interface2.png" alt="Flasher Logo" width="520"/>
+<img src="script_interface1.png" alt="Flasher Logo" width="520"/><img src="script_interface2.png" alt="Flasher Logo" width="520"/>
+
 
 # Installation 
 
