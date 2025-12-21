@@ -31,7 +31,7 @@ mkdir -p "$INSTALL_DIR"
 echo -e "\e[33m📥 Downloading flasher script...\e[0m"
 git clone https://github.com/sukuna567/flasher.git
 
-cd flasher && rm LICENSE && rm README.md && rm flasher.png && mv flasher.sh "$INSTALL_DIR/" && rm -rf flasher
+cd flasher && mv flasher.sh "$INSTALL_DIR/" && rm -rf flasher
 
 # Make executable
 chmod +x "$INSTALL_DIR/flasher.sh"
