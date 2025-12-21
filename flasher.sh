@@ -2,75 +2,31 @@
 
 # Colors
 RED="\e[31m"
+RED='\033[1;31m'
+PINK='\033[38;5;201m'
 GREEN="\e[32m"
 YELLOW="\e[33m"
 BLUE="\033[0;34m"
+PURPLE="\e[35m"
+CYAN="\e[36m"
 RESET="\e[0m"
+BOLD="\e[1m"
 
-clear
-echo -e "${BLUE}📦 Checking & installing dependencies...${RESET}"
 
-# Update Termux packages & Install fastboot (termux package)
-echo -e "${YELLOW}thanks for offici5l developers for fastboot adb.${RESET}"
-read -p "Do you want to install adb-fastboot connection driver? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
-    curl -s https://raw.githubusercontent.com/offici5l/termux-adb-fastboot/main/install | bash
-    else
-       echo -e "${YELLOW}Continuing without adb-fastboot driver${RESET}"
-    fi
-
-# Check again
-clear
-if command -v adb >/dev/null 2>&1; then
-    echo -e "${GREEN}[✔] ADB installed successfully.${RESET}"
-    adb --version
-    fastboot --version
-else
-    echo -e "${RED}[✘] Failed to install ADB and Fastboot. Try again manually.${RESET}"
-fi
-
-sleep 6
-
-echo -e "${BLUE}Updating packages....${RESET}"
-read -p "Do you want update termux driver? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
-    yes | pkg update && upgrade
-    else
-       echo -e "${YELLOW}Continuing without updated termux driver${RESET}"
-    fi
-
-echo -e "${BLUE}git installation...${RESET}"
-yes | pkg install git
-
-echo -e "${BLUE}setting api.....${RESET}"
-pkg install termux-api
-
-echo -e "${BLUE}Giving storage permission.......${RESET}"
-termux-setup-storage -y
-
-echo -e "${YELLOW}Done....${RESET}"
-
-# Sleep to give time for connection
-sleep 6
-
-# Optional: Check if device is connected in fastboot mode
-echo -e "${YELLOW}[~] Checking connected device (fastboot mode)...${RESET}"
-
-# Sleep to give time for connection
-sleep 6
-
-# Check device in fastboot mode
-echo -e "${YELLOW}Verification Checks......${RESET}"
-echo -e "${BLUE}FIRST CONNECT YOUR DEVICE IN FASTBOOT..${RESET}"
-read -p "Do you want to check fastboot serial number? (y/n): " choice
-    if [[ "$choice" == "y" || "$choice" == "Y" || "$choice" == "" ]]; then
-       echo -e "${BLUE}☑️ Device Detected Here If You Unable To See Device Serial Number or stuck with empty Then Check Your Device Otg Or Cable.${RESET}"
-       echo -e "${YELLOW}fastboot serial number.......${RESET}"
-       fastboot devices
-    fi
-
-# Sleep to give time for connection
-sleep 2
+# Show progress bar
+show_progress() {
+    local duration=$1
+    local message="${2:-Processing...}"
+    local sleep_time=0.1
+    local steps=$((duration * 10))
+    
+    echo -ne "${BLUE}${message} ${RESET}"
+    for ((i=0; i<steps; i++)); do
+        printf "${PURPLE}▓${RESET}"
+        sleep $sleep_time
+    done
+    printf "${GREEN} ✅\n${RESET}"
+}
 
 clear
 echo -e "${YELLOW}\n====== Created By @sukuna567 ======${RESET}"
@@ -185,6 +141,69 @@ FLASH_RECOVERY() {
     echo -e "${GREEN}if you're using mediatek device then flash vbmeta after recovery flash (vbmeta from current rom). It's for device specific but mandatory that's not giving harm on your device...${RESET}"
 }
 
+# Custom command
+CUSTOM_COMMAND() {
+    echo -e "${YELLOW}Enter custom fastboot command:${RESET}"
+    echo -e "${CYAN}Examples:${RESET}"
+    echo -e "  getvar all"
+    echo -e "  reboot"
+    echo -e "  oem device-info"
+    
+    read -p "Command: " custom_cmd
+    if [ -n "$custom_cmd" ]; then
+        echo -e "${BLUE}Executing: fastboot $custom_cmd${RESET}"
+        fastboot $custom_cmd
+    fi
+}
+
+# Unlock bootloader (WARNING: wipes data)
+UNLOCK_BOOTLOADER() {
+    echo -e "${RED}════════════════════════════════════════════════${RESET}"
+    echo -e "${RED}   ⚠️  DANGER: UNLOCK BOOTLOADER ⚠️   ${RESET}"
+    echo -e "${RED}════════════════════════════════════════════════${RESET}"
+    echo -e "${YELLOW}This will:${RESET}"
+    echo -e "${YELLOW}• Wipe ALL data (factory reset)${RESET}"
+    echo -e "${YELLOW}• Void warranty on some devices${RESET}"
+    echo -e "${YELLOW}• Potentially brick if interrupted${RESET}"
+    echo -e "${RED}════════════════════════════════════════════════${RESET}"
+    
+    read -p "Type 'UNLOCK' to confirm: " confirm
+    if [[ "$confirm" != "UNLOCK" ]]; then
+        echo -e "${GREEN}❌ Unlock cancelled${RESET}"
+        return
+    fi
+    
+    echo -e "${YELLOW}Unlocking bootloader...${RESET}"
+    fastboot flashing unlock || fastboot oem unlock
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Bootloader unlocked${RESET}"
+        echo -e "${YELLOW}Device will reboot and wipe data${RESET}"
+    else
+        echo -e "${RED}❌ Unlock failed${RESET}"
+    fi
+}
+
+# Show device info
+SHOW_DEVICE_INFO() {
+    echo -e "${YELLOW}\n📊 DEVICE INFORMATION${RESET}"
+    echo -e "${CYAN}─────────────────────────${RESET}"
+    
+    # Fastboot info
+    echo -e "${BLUE}Fastboot Variables:${RESET}"
+    fastboot getvar all 2>/dev/null | head -20
+    
+    # Slot info
+    current_slot=$(fastboot getvar current-slot 2>/dev/null | grep -o 'current-slot:.*' | cut -d: -f2 | xargs)
+    echo -e "${GREEN}Current Slot: $current_slot${RESET}"
+    
+    # Device model from fastboot
+    device_fb=$(fastboot getvar product 2>/dev/null | grep 'product:' | cut -d: -f2 | xargs)
+    echo -e "${GREEN}Fastboot ID: $device_fb${RESET}"
+    
+    echo -e "${CYAN}─────────────────────────${RESET}"
+}
+
 FLASH_ROM() {
     echo -e "${BLUE}🔍 Scanning for ROM and etc. Files...${RESET}"
     mapfile -t ROM_FILES < <(find /sdcard/flasher -iname "*.apk" -o -iname "*.zip")
@@ -272,7 +291,7 @@ FASTBOOT_ROM() {
     esac
 
     echo -e "${GREEN}✅ Extraction completed → $OUTPUT_DIR${RESET}"
-    echo -e "${RED}㊗️ Clearing Previous directory if available......${RESET}"
+    echo -e "${BOLD}㊗️ Clearing Previous directory if available......${RESET}"
     # Check if the $HOME/ROM directory exists
     if [ -d "$HOME/ROM" ]; then
        echo -e "${BLUE}Directory $HOME/ROM found. Removing it...${RESET}"
@@ -316,6 +335,7 @@ FASTBOOT_ROM() {
     echo -e "${YELLOW}Removing Extracted 📂 Folder.....${RESET}"
     echo -e "${BLUE}WAIT FOR MIN....${RESET}"
     rm -rf $HOME/ROM
+    sleep 6
 }
 
 VB_META() {
@@ -376,49 +396,170 @@ BOOT_FLASH() {
     echo -e "${BLUE}✅ Boot flashed.${RESET}"
 }
 
+CHECK_DEVICE_COMPATIBILITY() {
+     echo -e "${PURPLE}NOT AVAILABLE COMMING SOON${RESET}"
+     sleep 4
+     
+}
+
+CLEAN_CACHE() {
+     echo -e "${PURPLE}NOT AVAILABLE COMMING SOON${RESET}"
+     sleep 4
+     
+}
+
+BACKUP_PARTITIONS() {
+     echo -e "${PURPLE}NOT AVAILABLE COMMING SOON${RESET}"
+     sleep 4
+     
+}
+
+# ============================================
+# ADVANCED MENU
+# ============================================
+
+ADVANCED_MENU() {
+    while true; do
+        clear
+        echo -e "${PURPLE}╔══════════════════════════════════════════╗${RESET}"
+        echo -e "${PURPLE}║         🛠️  ADVANCED OPTIONS         ║${RESET}"
+        echo -e "${PURPLE}╚══════════════════════════════════════════╝${RESET}"
+        echo -e "${CYAN}1) 🔓 Unlock Bootloader [OnePlus] (Wipes Data!)${RESET}"
+        echo -e "${CYAN}2) 📊 Device Information${RESET}"
+        echo -e "${CYAN}3) 🧹 Clean Cache & Temp Files${RESET}"
+        echo -e "${CYAN}4) 💾 Backup Partitions${RESET}"
+        echo -e "${CYAN}5) ⚙️  Custom Fastboot Command${RESET}"
+        echo -e "${CYAN}6) 🔧 Check Device Connection${RESET}"
+        echo -e "${CYAN}7) ↩️  Back to Main Menu${RESET}"
+        echo -e "${CYAN}──────────────────────────────────────${RESET}"
+        
+        read -p "Choose option [1-7]: " adv_choice
+        
+        case $adv_choice in
+            1) UNLOCK_BOOTLOADER ;;
+            2) SHOW_DEVICE_INFO ;;
+            3) CLEAN_CACHE ;;
+            4) BACKUP_PARTITIONS ;;
+            5) CUSTOM_COMMAND ;;
+            6) CHECK_DEVICE_COMPATIBILITY ;;
+            7) return ;;
+            *) echo -e "${RED}❌ Invalid option${RESET}" ;;
+        esac
+        
+        echo -e "\n${YELLOW}Press Enter to continue...${RESET}"
+        read
+    done
+}
+
 FLASH_MENU() {
 
-echo -e "${RED}
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⡤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  
-⠀⠀⠀⠀⠀⠀⢀⣤⡶⠁⣠⣴⣾⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  
-⠀⠀⠀⠀⢀⣴⣿⣿⣴⣿⠿⠋⣁⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
-⠀⠀⠀⣰⣿⣿⣿⣿⣿⣷⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣄⡀⠀⠀⠀⠀⠀⠀⠀
-⠀⣠⣾⣿⡿⠟⠋⠉⠀⣀⣀⣀⣨⣭⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣤⣤⣤⣴⠂  ${RESET}"${GREEN}Name${RESET}""${BLUE} - Flasher [ AUTO ]${RESET}"${RED}
-⠈⠉⠁⠀⠀⣀⣴⣾⣿⣿⡿⠟⠛⠉⠉⠉⠉⠉⠛⠻⠿⠿⠿⠿⠿⠿⠟⠋⠁⠀
-⠀⠀⠀⢀⣴⣿⣿⣿⡿⠁⠀⢀⣀⣤⣤⣤⣤⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ${RESET}"${GREEN}Device${RESET}""${BLUE} - $(getprop ro.product.model)${RESET}"${RED}
-⠀⠀⠀⣾⣿⣿⣿⡿⠁⢀⣴⣿⠋⠉⠉⠉⠉⠛⣿⣿⣶⣤⣤⣤⣤⣶⠖⠀⠀⠀
-⠀⠀⢸⣿⣿⣿⣿⡇⢀⣿⣿⣇⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⡿⠃⠀⠀⠀⠀  ${RESET}"${GREEN}Version${RESET}""${BLUE} - 1.2.0 ÆLPHA${RESET}"${RED}
-⠀⠀⠸⣿⣿⣿⣿⡇⠈⢿⣿⣿⠇⠀⠀⠀⠀⠀⢠⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⢿⣿⣿⣿⣷⡀⠀⠉⠉⠀⠀⠀⠀⠀⢀⣾⣿⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀  ${RESET}"${GREEN}Author name${RESET}""${BLUE} - @sukuna567${RESET}"${RED}
-⠀⠀⠀⠀⠙⢿⣿⣿⣷⣄⡀⠀⠀⠀⠀⣀⣴⣿⣿⣿⣋⣠⡤⠄⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠈⠙⠛⠛⠿⠿⠿⠿⠿⠿⠟⠛⠛⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀  ${RESET}"${YELLOW}WELCOME IN MY WORLD${RESET}"
-"${RED}ORIGINAL${RESET}""
-echo -e "${RED}
-            ...............................
-            [          ${RESET}"${GREEN} WELCOME ${RESET}"${RED}          ]
-            ...............................
-SOMETHING...............................${RESET}"
+    # Pulsing animation
+sukuna_minimal() {
+    clear
+    for i in {1..10}; do
+        clear
+        
+        # Alternate colors
+        if [ $((i % 2)) -eq 0 ]; then
+            color=$RED
+        else
+            color=$PINK
+        fi
+        
+        echo -e "${color}"
+        echo ""
+        echo "═══════════════════════════════════════════════════"
+        echo "      両 面 宿 儺            Name - AutoFlasher"
+        echo "═══════════════════════════════════════════════════"
+        echo "呪術フラッシャー          Author name - @Sukuna567"
+        echo "AUTOFLASHER TERMUX          WELCOME IN MY WORLD"
+        echo "═══════════════════════════════════════════════════"
+        echo -e "${RESET}"
+        
+        # Pulsing text
+        echo -e "${color}"
+        case $((i % 3)) in
+            0) echo "                  伏魔御厨子 展開中...";;
+            1) echo "                  呪力充填 完了";;
+            2) echo "                  フラッシュ準備 OK";;
+        esac
+        echo -e "${RESET}"
+        
+        sleep 0.3
+    done
+    
+}
 
-    echo -e "${YELLOW}\n=============== Android Flash Menu ===============${RESET}"
-    echo -e "${GREEN}1) 🎲 Flash Recovery\n2) 🃏 ADB Sideload(Apk/zip)\n3) 🀄 Flash Fastboot ROM\n4) 🪅 Flash vbmeta\n5) 🪩 Flash Boot\n6) 🔘 Reboot to System\n7) ♦️ Reboot to Recovery\n8) 🧶 fastboot to fastbootd\n9) 🔲 Reboot to Bootloader\n10) 🔶 Check active slot\n11) 📲 Set slot A\n12) 📲 Set slot B\n13) 💠 Exit${RESET}"
-    read -p "Choose an option [1-13]: " choice
+sukuna_minimal
+
+# CONTINUE WITH SCRIPT
+echo -e "\033[38;5;46m"
+echo "==============================================="
+echo "|    ASTHMATIC AUTOFLASHER TERMUX v2.0.0       |"
+echo "|       ULTRA EDITION - EXTREME MODE        |"
+echo "|            DEVICE - $(getprop ro.product.model | head -c 30)                 |"
+echo "==============================================="
+echo -e "\033[0m"
+
+
+    echo -e "${CYAN}══════════════════════════════════════════════════${RESET}"
+    echo -e "${GREEN}1) 🎲 Flash Recovery${RESET}"
+    echo -e "${GREEN}2) 🃏 ADB Sideload (Apk/zip)${RESET}"
+    echo -e "${GREEN}3) 🀄 Flash Fastboot ROM${RESET}"
+    echo -e "${GREEN}4) 🪅 Flash vbmeta${RESET}"
+    echo -e "${GREEN}5) 🪩 Flash Boot${RESET}"
+    echo -e "${CYAN}──────────────────────────────────────────────────${RESET}"
+    echo -e "${YELLOW}6) 🔘 Reboot to System${RESET}"
+    echo -e "${YELLOW}7) ♦️  Reboot to Recovery${RESET}"
+    echo -e "${YELLOW}8) 🧶 Fastboot to fastbootd${RESET}"
+    echo -e "${YELLOW}9) 🔲 Reboot to Bootloader${RESET}"
+    echo -e "${YELLOW}10) 🔶 Check/Switch Slots${RESET}"
+    echo -e "${CYAN}──────────────────────────────────────────────────${RESET}"
+    echo -e "${PURPLE}11) 🛠️  Advanced Options${RESET}"
+    echo -e "${PURPLE}12) 💠 Exit${RESET}"
+    echo -e "${CYAN}══════════════════════════════════════════════════${RESET}"
+    
+    read -p "Choose an option [1-12]: " choice
+    
     case "$choice" in
         1) FLASH_RECOVERY ;;
         2) FLASH_ROM ;;
         3) FASTBOOT_ROM ;;
         4) VB_META ;;
         5) BOOT_FLASH ;;
-        6) fastboot reboot ;;
-        7) echo -e "${BLUE}BOOTING.. REC....${RESET}"; fastboot reboot recovery ;;
-        8) echo -e "${BLUE}BOOTING.. FASTBOOTD..${RESET}"; fastboot reboot fastboot ;;
-        9) echo -e "${BLUE}BOOTING.. FASTBOOT...${RESET}"; adb reboot bootloader || { echo -e "${RED}❌ Device not have in adb mode.${RESET}"; return; } ;;
-        10) echo -e "${BLUE}Slot is.....${RESET}"; fastboot getvar current-slot ;;
-        11) echo -e "${BLUE}Slot A Activated....${RESET}"; fastboot set_active a ;;
-        12) echo -e"${BLUE}Slot B Activated.....${RESET}"; fastboot set_active b ;;
-        13) echo -e "${BLUE}👋 Exiting script.${RESET}"; exit 0 ;;
-        *) echo -e "${RED}❌ Invalid option.${RESET}" ;;
+        6) echo -e "${BLUE}🔄 Rebooting to system...${RESET}"; fastboot reboot ;;
+        7) echo -e "${BLUE}🔄 Rebooting to recovery...${RESET}"; fastboot reboot recovery ;;
+        8) echo -e "${BLUE}🔄 Switching to fastbootd...${RESET}"; fastboot reboot fastboot ;;
+        9) echo -e "${BLUE}🔄 Rebooting to bootloader...${RESET}"; adb reboot bootloader 2>/dev/null || fastboot reboot bootloader ;;
+        10)
+            echo -e "${CYAN}Current slot:${RESET}"
+            fastboot getvar current-slot 2>/dev/null || echo "Cannot determine slot"
+            echo -e "${CYAN}Set slot:${RESET}"
+            echo "1) Slot A"
+            echo "2) Slot B"
+            echo "3) Check slot only"
+            read -p "Choose: " slot_choice
+            case $slot_choice in
+                1) fastboot set_active a ;;
+                2) fastboot set_active b ;;
+                3) fastboot getvar current-slot ;;
+                *) echo -e "${RED}Invalid choice${RESET}" ;;
+            esac
+            ;;
+        11) ADVANCED_MENU ;;
+        12) 
+            echo -e "${BLUE}👋 Thank you for using Android Flasher!${RESET}"
+            echo -e "${YELLOW}Nice to meet you 😇${RESET}"
+            exit 0
+            ;;
+        *) echo -e "${RED}❌ Invalid option. Please choose 1-12.${RESET}" ;;
     esac
+    
+    echo -e "\n${YELLOW}Press Enter to continue...${RESET}"
+    read
 }
+
+show_progress 2 "Starting..."
 
 # === Main Loop ===
 while true; do

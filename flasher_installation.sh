@@ -20,10 +20,8 @@ echo -e "\e[33m📦 Installing dependencies...\e[0m"
 pkg install -y git wget curl unzip tar bash
 
 # Install ADB/Fastboot if not present
-if ! command -v adb >/dev/null 2>&1; then
-    echo -e "\e[33m📱 Installing ADB/Fastboot...\e[0m"
-    curl -s https://raw.githubusercontent.com/offici5l/termux-adb-fastboot/main/install | bash
-fi
+echo -e "\e[33m📱 Installing ADB/Fastboot...\e[0m"
+curl -s https://raw.githubusercontent.com/offici5l/termux-adb-fastboot/main/install | bash
 
 # Create installation directory
 INSTALL_DIR="$PREFIX/share/flasher"
@@ -66,7 +64,7 @@ cat > "$HOME/.flasher/README.md" << EOF
 - Fastboot ROM installation
 - vbmeta/boot flashing
 - Device information
-- Safety checks and logging
+- 
 
 Created by @sukuna567
 Version: 2.0.0
