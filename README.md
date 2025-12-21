@@ -9,7 +9,6 @@ Credit: offici5l for adb connection
   <img src="script_interface2.png" width="400" height="1000">
 </div>
 
-
 # Installation 
 
 Install [Termux](https://f-droid.org/repo/com.termux_118.apk) & [Termux-api](https://f-droid.org/repo/com.termux.api_51.apk) apk
